@@ -1,26 +1,23 @@
 import React, { useState } from "react";
-import { useAuth } from "../../utils/AuthContext"; // Corrected path here
+import { useAuth } from "../../utils/AuthContext"; 
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth(); // Get the login function
-  const navigate = useNavigate(); // For navigation after successful signup
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here, you would add your logic to register the user
-    // For now, we simulate a successful signup
 
     console.log("Name:", name);
     console.log("Email:", email);
     console.log("Password:", password);
 
-    // Simulate successful signup by logging the user in
-    login(); // Mark the user as authenticated
-    navigate("/"); // Redirect to the homepage after signup
+    login();
+    navigate("/");
   };
 
   return (

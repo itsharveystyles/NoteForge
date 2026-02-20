@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../utils/AuthContext"; // Corrected path here
+import { useAuth } from "../../utils/AuthContext"; 
 
 const Home = () => {
   const { isAuthenticated } = useAuth(); // Get authentication status
