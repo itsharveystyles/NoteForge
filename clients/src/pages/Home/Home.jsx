@@ -14,35 +14,30 @@ const Home = () => {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center px-6">
       <div className="text-center max-w-2xl">
-        <h1 className="text-5xl font-bold text-white mb-6">
+        <h1 className="text-5xl font-bold text-[var(--text-primary)] mb-6">
           Welcome to NoteForge
         </h1>
-        <p className="text-gray-300 mb-8 text-lg">
+        <p className="text-[var(--text-secondary)] mb-8 text-lg">
           Create, manage, and organize your notes effortlessly. A clean, minimal experience for your ideas.
         </p>
-
-        {/* Call to Action Buttons */}
         <div className="flex gap-4 justify-center">
           <Link
             to="/signup"
-            className="px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition"
+            className="px-6 py-3 bg-[var(--accent)] text-white font-semibold rounded-lg hover:bg-[var(--accent-hover)] transition"
           >
             Get Started
           </Link>
           <Link
             to="/login"
-            className="px-6 py-3 border border-white text-white rounded-lg hover:bg-white hover:text-black transition"
+            className="px-6 py-3 border border-[var(--border-default)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-tertiary)] transition"
           >
             Login
           </Link>
         </div>
       </div>
-
-      {/* Optional placeholder for features */}
-      <div className="mt-16 max-w-4xl text-center text-gray-400">
+      <div className="mt-16 max-w-4xl text-center text-[var(--text-muted)]">
         <p className="mb-4">
           Organize your thoughts, collaborate, and stay productive.
         </p>

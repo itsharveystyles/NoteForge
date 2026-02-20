@@ -21,56 +21,48 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black px-6">
-      <div className="w-full max-w-md p-8 rounded-xl bg-gray-900 shadow-lg">
-        <h2 className="text-2xl font-semibold text-white mb-6 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)] px-6">
+      <div className="w-full max-w-md p-8 rounded-xl card-dark border border-[var(--border-subtle)]">
+        <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-6 text-center">
           Create your NoteForge account
         </h2>
-
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name */}
           <div>
-            <label className="block text-sm text-gray-300 mb-2">Name</label>
+            <label className="block text-sm text-[var(--text-secondary)] mb-2">Name</label>
             <input
               type="text"
               placeholder="Enter your name"
-              className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white outline-none focus:ring-2 focus:ring-gray-600"
+              className="input-dark w-full px-4 py-2.5"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
-
-          {/* Email */}
           <div>
-            <label className="block text-sm text-gray-300 mb-2">Email</label>
+            <label className="block text-sm text-[var(--text-secondary)] mb-2">Email</label>
             <input
               type="email"
               placeholder="Enter your email"
-              className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white outline-none focus:ring-2 focus:ring-gray-600"
+              className="input-dark w-full px-4 py-2.5"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-
-          {/* Password */}
           <div>
-            <label className="block text-sm text-gray-300 mb-2">Password</label>
+            <label className="block text-sm text-[var(--text-secondary)] mb-2">Password</label>
             <input
               type="password"
               placeholder="Enter your password"
-              className="w-full px-4 py-2 rounded-lg bg-gray-800 text-white outline-none focus:ring-2 focus:ring-gray-600"
+              className="input-dark w-full px-4 py-2.5"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-
-          {/* Button */}
           <button
             type="submit"
-            className="w-full py-2 rounded-lg bg-white text-black font-medium"
+            className="btn-glow w-full py-2.5 rounded-lg bg-[var(--accent)] text-white font-medium hover:bg-[var(--accent-hover)] transition"
           >
             Sign Up
           </button>

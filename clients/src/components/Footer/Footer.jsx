@@ -2,21 +2,17 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="text-gray-400 py-6 px-10 mt-auto">
+    <footer className="text-[var(--text-muted)] py-6 px-10 mt-auto bg-[var(--bg-secondary)] border-t border-[var(--border-subtle)]">
       <div className="flex flex-col md:flex-row justify-between items-center max-w-6xl mx-auto">
-
-        {/* Logo / Brand */}
-        <div className="text-white font-semibold text-lg mb-4 md:mb-0">
+        <div className="text-[var(--text-primary)] font-semibold text-lg mb-4 md:mb-0">
           NoteForge
         </div>
-
-        {/* Social Media Links */}
         <div className="flex space-x-6 mb-4 md:mb-0">
           <a
             href="https://twitter.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white transition"
+            className="hover:text-[var(--text-primary)] transition"
           >
             Twitter
           </a>
@@ -24,7 +20,7 @@ const Footer = () => {
             href="https://facebook.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white transition"
+            className="hover:text-[var(--text-primary)] transition"
           >
             Facebook
           </a>
@@ -32,14 +28,12 @@ const Footer = () => {
             href="https://linkedin.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white transition"
+            className="hover:text-[var(--text-primary)] transition"
           >
             LinkedIn
           </a>
         </div>
-
-        {/* Copyright */}
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-[var(--text-muted)]">
           &copy; {new Date().getFullYear()} NoteForge. All rights reserved.
         </div>
 

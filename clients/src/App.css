@@ -1,19 +1,85 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
 @import "tailwindcss";
 
-@layer base {
-    html {
-        font-family: 'Poppins', 'san-serif';
-    }
-
-    body {
-        background-color: #000000;
-        overflow-x: hidden;
-    }
-    body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
+/* ---- Dark theme (default) ---- */
+:root {
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #141416;
+  --bg-tertiary: #1c1c1f;
+  --bg-card: #18181b;
+  --bg-card-hover: #222226;
+  --border-subtle: #27272a;
+  --border-default: #3f3f46;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --accent: #a78bfa;
+  --accent-hover: #c4b5fd;
+  --accent-muted: rgba(167, 139, 250, 0.15);
+  --success: #22c55e;
+  --warning: #eab308;
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
+
+@layer base {
+  html {
+    font-family: 'DM Sans', 'Poppins', system-ui, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  body::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+  body::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 4px;
+  }
+  body::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
 }
 
 @layer components {
+  .card-dark {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .input-dark {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+  }
+  .input-dark::placeholder {
+    color: var(--text-muted);
+  }
+  .input-dark:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-muted);
+  }
+
+  /* Glow for primary buttons only (not links) */
+  .btn-glow {
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.4);
+  }
+  .btn-glow:hover {
+    box-shadow: 0 0 28px rgba(167, 139, 250, 0.5);
+  }
+  .btn-glow:focus-visible {
+    box-shadow: 0 0 0 3px var(--accent-muted), 0 0 24px rgba(167, 139, 250, 0.45);
+  }
 }
