@@ -73,7 +73,7 @@ const SignUp = () => {
           </button>
           <p className="text-center text-sm text-[var(--text-secondary)] mt-5">
             Already have an account?{" "}
-            <Link to="/login" className="text-[var(--accent)] font-medium hover:text-[var(--accent-hover)] transition underline underline-offset-2">
+            <Link to="/login" className="text-[var(--accent)] font-medium hover:text-[var(--text-link-hover)] transition underline underline-offset-2">
               Log in
             </Link>
           </p>

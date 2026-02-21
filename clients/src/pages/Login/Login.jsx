@@ -61,7 +61,7 @@ const Login = () => {
           </button>
           <p className="text-center text-sm text-[var(--text-secondary)] mt-5">
             Don&apos;t have an account?{" "}
-            <Link to="/signup" className="text-[var(--accent)] font-medium hover:text-[var(--accent-hover)] transition underline underline-offset-2">
+            <Link to="/signup" className="text-[var(--accent)] font-medium hover:text-[var(--text-link-hover)] transition underline underline-offset-2">
               Sign up
             </Link>
           </p>

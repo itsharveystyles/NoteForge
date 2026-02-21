@@ -12,7 +12,7 @@ const Footer = () => {
             href="https://twitter.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[var(--text-primary)] transition"
+            className="hover:text-[var(--text-link-hover)] transition"
           >
             Twitter
           </a>
@@ -20,7 +20,7 @@ const Footer = () => {
             href="https://facebook.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[var(--text-primary)] transition"
+            className="hover:text-[var(--text-link-hover)] transition"
           >
             Facebook
           </a>
@@ -28,7 +28,7 @@ const Footer = () => {
             href="https://linkedin.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[var(--text-primary)] transition"
+            className="hover:text-[var(--text-link-hover)] transition"
           >
             LinkedIn
           </a>

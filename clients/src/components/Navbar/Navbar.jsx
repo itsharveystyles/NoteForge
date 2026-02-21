@@ -30,7 +30,7 @@ const Navbar = () => {
 
   return (
     <div className="flex items-center justify-between py-4 px-10 bg-[var(--bg-primary)] border-b border-[var(--border-subtle)]">
-      <Link to="/" className="text-[var(--text-primary)] font-semibold text-xl">
+      <Link to="/" className="text-[var(--text-primary)] font-semibold text-xl hover:text-[var(--text-link-hover)] transition">
         NoteForge
       </Link>
 
@@ -50,15 +50,15 @@ const Navbar = () => {
         {isAuthenticated && (
           <Link
             to="/dashboard"
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition font-medium"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-link-hover)] transition font-medium"
           >
             Dashboard
           </Link>
         )}
         {location.pathname !== "/login" && location.pathname !== "/signup" && !isAuthenticated && (
           <>
-            <Link to="/login" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition">Login</Link>
-            <Link to="/signup" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition">Signup</Link>
+            <Link to="/login" className="text-[var(--text-secondary)] hover:text-[var(--text-link-hover)] transition">Login</Link>
+            <Link to="/signup" className="text-[var(--text-secondary)] hover:text-[var(--text-link-hover)] transition">Signup</Link>
           </>
         )}
         {isAuthenticated && (
@@ -80,7 +80,7 @@ const Navbar = () => {
                 <Link
                   to="/signup"
                   onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-link-hover)] transition-colors"
                   role="menuitem"
                 >
                   <HiOutlineUserPlus className="w-4 h-4 shrink-0" />

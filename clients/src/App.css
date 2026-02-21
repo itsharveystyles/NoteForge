@@ -14,6 +14,7 @@
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
+  --text-link-hover: #fafafa;
   --accent: #a78bfa;
   --accent-hover: #c4b5fd;
   --accent-muted: rgba(167, 139, 250, 0.15);
@@ -36,6 +37,7 @@
   --text-primary: #1c1c1f;
   --text-secondary: #3f3f46;
   --text-muted: #71717a;
+  --text-link-hover: #b85c44;
   --accent: #d99a85;
   --accent-hover: #c98a75;
   --accent-muted: rgba(217, 154, 133, 0.2);
