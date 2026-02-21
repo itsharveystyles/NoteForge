@@ -15,7 +15,7 @@ const App = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
+        <Router basename="/NoteForge">
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
