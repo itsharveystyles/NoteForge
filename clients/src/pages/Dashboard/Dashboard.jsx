@@ -1,37 +1,88 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import NoteCard from "../../components/NoteCard/NoteCard";
 import StatsCard from "../../components/StatsCard/StatsCard";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import EmptyState from "../../components/EmptyState/EmptyState";
 import CreateNoteButton from "../../components/CreateNoteButton/CreateNoteButton";
+import NoteEditorModal from "../../components/NoteEditorModal/NoteEditorModal";
 import { HiOutlineDocumentText, HiOutlineClock } from "react-icons/hi2";
 
-const MOCK_NOTES = [
-  { id: "1", title: "Meeting notes", snippet: "Action items: review API, update docs, schedule follow-up.", updatedAt: new Date().toISOString(), isPinned: true },
-  { id: "2", title: "Ideas for NoteForge", snippet: "Dark theme, markdown support, tags, and search.", updatedAt: new Date(Date.now() - 86400000).toISOString(), isPinned: false },
-  { id: "3", title: "Untitled Note", snippet: "", updatedAt: new Date(Date.now() - 172800000).toISOString(), isPinned: false },
-];
+const STORAGE_KEY = "noteforge-notes";
+
+const loadNotes = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data)) return [];
+    return data.filter((n) => n != null && typeof n === "object");
+  } catch {
+    return [];
+  }
+};
+
+const saveNotes = (notes) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+  } catch (_) {}
+};
 
 const Dashboard = () => {
-  const [notes, setNotes] = useState(MOCK_NOTES);
+  const [notes, setNotes] = useState(loadNotes);
   const [search, setSearch] = useState("");
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+
+  useEffect(() => {
+    saveNotes(notes);
+  }, [notes]);
 
   const filteredNotes = useMemo(() => {
-    if (!search.trim()) return notes;
-    const q = search.toLowerCase();
-    return notes.filter(
-      (n) =>
-        (n.title || "").toLowerCase().includes(q) ||
-        (n.snippet || "").toLowerCase().includes(q)
-    );
+    let list = notes;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = notes.filter(
+        (n) =>
+          (n.title || "").toLowerCase().includes(q) ||
+          (n.snippet || "").toLowerCase().includes(q) ||
+          (n.content || "").toLowerCase().includes(q) ||
+          (Array.isArray(n.tags) &&
+            n.tags.some((t) => {
+              const label = typeof t === "string" ? t : (t && t.label);
+              return (label || "").toLowerCase().includes(q);
+            }))
+      );
+    }
+    return [...list].sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    });
   }, [notes, search]);
 
   const handleCreateNote = () => {
-    setNotes((prev) => [
-      { id: String(Date.now()), title: "New note", snippet: "", updatedAt: new Date().toISOString(), isPinned: false },
-      ...prev,
-    ]);
+    setEditingNote(null);
+    setEditorOpen(true);
+  };
+
+  const handleEditNote = (note) => {
+    setEditingNote(note);
+    setEditorOpen(true);
+  };
+
+  const handleSaveNote = (payload) => {
+    setNotes((prev) => {
+      const idx = prev.findIndex((n) => n.id === payload.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = payload;
+        return next;
+      }
+      return [payload, ...prev];
+    });
+    setEditorOpen(false);
+    setEditingNote(null);
   };
 
   const handleDeleteNote = (note) => {
@@ -50,7 +101,6 @@ const Dashboard = () => {
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <div className="max-w-5xl mx-auto px-6 py-8">
-          {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl font-bold text-[var(--text-primary)]">
@@ -62,13 +112,12 @@ const Dashboard = () => {
             </div>
             <div className="flex gap-3 items-center">
               <div className="flex-1 sm:max-w-xs">
-                <SearchBar value={search} onChange={setSearch} />
+                <SearchBar value={search} onChange={setSearch} placeholder="Search notes or tags..." />
               </div>
               <CreateNoteButton onClick={handleCreateNote} label="New note" />
             </div>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             <StatsCard
               label="Total notes"
@@ -86,7 +135,6 @@ const Dashboard = () => {
             />
           </div>
 
-          {/* Notes grid or empty state */}
           <section>
             <h2 className="text-sm font-medium text-[var(--text-muted)] uppercase tracking-wider mb-4">
               {filteredNotes.length ? "Your notes" : "Notes"}
@@ -97,27 +145,37 @@ const Dashboard = () => {
                   <NoteCard
                     key={note.id}
                     note={note}
-                    onEdit={() => {}}
+                    onEdit={handleEditNote}
                     onDelete={handleDeleteNote}
                   />
                 ))}
               </div>
             ) : (
               <EmptyState
-                title={search ? "No matching notes" : "No notes yet"}
+                title={search ? "No matching notes" : "You don't have any notes yet"}
                 message={
                   search
                     ? "Try a different search or create a new note."
-                    : "Create your first note to get started."
+                    : "Create your first note to capture your ideas. Click the button below to get started."
                 }
                 onAction={search ? undefined : handleCreateNote}
-                actionLabel="Create note"
+                actionLabel="Create your first note"
               />
             )}
           </section>
         </div>
       </main>
       <CreateNoteButton onClick={handleCreateNote} variant="floating" />
+
+      <NoteEditorModal
+        open={editorOpen}
+        onClose={() => {
+          setEditorOpen(false);
+          setEditingNote(null);
+        }}
+        note={editingNote}
+        onSave={handleSaveNote}
+      />
     </div>
   );
 };
