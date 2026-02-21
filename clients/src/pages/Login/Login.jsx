@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { HiOutlineArrowLeft } from "react-icons/hi2";
 import { useAuth } from "../../utils/AuthContext";
 
 const Login = () => {
@@ -17,6 +18,15 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)] px-4">
       <div className="w-full max-w-md p-8 rounded-xl card-dark border border-[var(--border-subtle)]">
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition mb-4"
+          aria-label="Go back"
+        >
+          <HiOutlineArrowLeft className="w-5 h-5" />
+          Back
+        </button>
         <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-6 text-center">
           Login to NoteForge
         </h2>
