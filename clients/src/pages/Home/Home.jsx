@@ -41,7 +41,7 @@ const Home = () => {
         <p className="mb-4">
           Organize your thoughts, collaborate, and stay productive.
         </p>
-        <p>
+        <p> Æ
           Your notes are safe, accessible anywhere, and easy to manage.
         </p>
       </div>
