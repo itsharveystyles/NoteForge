@@ -12,8 +12,7 @@ export const createNote = async (req, res, next) => {
     const note = await Note.create({
       title,
       content,
-      // If auth middleware attaches req.user, associate note with that user
-      user: req.user ? req.user.id : undefined,
+      user: req.user.id,
     });
 
     res.status(201).json(note);
@@ -22,15 +21,10 @@ export const createNote = async (req, res, next) => {
   }
 };
 
-// Get All Notes (optionally scoped to authenticated user)
+// Get All Notes (scoped to authenticated user)
 export const getNotes = async (req, res, next) => {
   try {
-    const query = {};
-    if (req.user) {
-      query.user = req.user.id;
-    }
-
-    const notes = await Note.find(query).sort({ createdAt: -1 });
+    const notes = await Note.find({ user: req.user.id }).sort({ createdAt: -1 });
     res.json(notes);
   } catch (error) {
     next(error);
@@ -40,7 +34,7 @@ export const getNotes = async (req, res, next) => {
 // Get single note by ID
 export const getNoteById = async (req, res, next) => {
   try {
-    const note = await Note.findById(req.params.id);
+    const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
@@ -57,7 +51,7 @@ export const updateNote = async (req, res, next) => {
   try {
     const { title, content } = req.body;
 
-    const note = await Note.findById(req.params.id);
+    const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
@@ -76,7 +70,7 @@ export const updateNote = async (req, res, next) => {
 // Delete note
 export const deleteNote = async (req, res, next) => {
   try {
-    const note = await Note.findById(req.params.id);
+    const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
 
     if (!note) {
       return res.status(404).json({ message: "Note not found" });
