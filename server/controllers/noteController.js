@@ -3,17 +3,38 @@ import Note from "../models/Note.js";
 // Create Note
 export const createNote = async (req, res, next) => {
   try {
-    const { title, content } = req.body;
+    const {
+      title,
+      content,
+      isPinned = false,
+      isFavorite = false,
+      isDeleted = false,
+      deletedAt = null,
+      tags = [],
+    } = req.body;
 
     if (!title || !content) {
       return res.status(400).json({ message: "Title and content are required" });
     }
 
-    const note = await Note.create({
-      title,
-      content,
-      user: req.user.id,
-    });
+    const note = await Note.create(
+      {
+        title,
+        content,
+        user: req.user.id,
+        isPinned,
+        isFavorite,
+        isDeleted,
+        deletedAt: isDeleted ? deletedAt || new Date() : null,
+        tags: Array.isArray(tags)
+          ? tags.map((t) =>
+              t && typeof t === "object"
+                ? { label: String(t.label || "").trim(), color: String(t.color || "").trim() || undefined }
+                : { label: String(t || "").trim(), color: "" }
+            )
+          : [],
+      }
+    );
 
     res.status(201).json(note);
   } catch (error) {
@@ -49,7 +70,15 @@ export const getNoteById = async (req, res, next) => {
 // Update note
 export const updateNote = async (req, res, next) => {
   try {
-    const { title, content } = req.body;
+    const {
+      title,
+      content,
+      isPinned,
+      isFavorite,
+      isDeleted,
+      deletedAt,
+      tags,
+    } = req.body;
 
     const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
 
@@ -59,6 +88,23 @@ export const updateNote = async (req, res, next) => {
 
     if (title !== undefined) note.title = title;
     if (content !== undefined) note.content = content;
+    if (isPinned !== undefined) note.isPinned = !!isPinned;
+    if (isFavorite !== undefined) note.isFavorite = !!isFavorite;
+    if (isDeleted !== undefined) {
+      note.isDeleted = !!isDeleted;
+      note.deletedAt = note.isDeleted ? deletedAt || new Date() : null;
+    } else if (deletedAt !== undefined) {
+      note.deletedAt = deletedAt;
+    }
+    if (tags !== undefined) {
+      note.tags = Array.isArray(tags)
+        ? tags.map((t) =>
+            t && typeof t === "object"
+              ? { label: String(t.label || "").trim(), color: String(t.color || "").trim() || undefined }
+              : { label: String(t || "").trim(), color: "" }
+          )
+        : [];
+    }
 
     const updated = await note.save();
     res.json(updated);

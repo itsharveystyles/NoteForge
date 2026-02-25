@@ -64,10 +64,11 @@ const Dashboard = () => {
               content: n.content,
               snippet: (n.content || "").slice(0, 120),
               updatedAt: n.updatedAt || n.createdAt,
-              isPinned: false,
-              isFavorite: false,
-              isDeleted: false,
-              tags: [],
+              isPinned: !!n.isPinned,
+              isFavorite: !!n.isFavorite,
+              isDeleted: !!n.isDeleted,
+              deletedAt: n.deletedAt,
+              tags: Array.isArray(n.tags) ? n.tags : [],
             }))
           : [];
         if (isMounted) setNotes(mapped);
@@ -115,16 +116,20 @@ const Dashboard = () => {
     if (!token) return;
     try {
       let saved;
+      const body = {
+        title: payload.title,
+        content: payload.content,
+        isPinned: payload.isPinned ?? false,
+        isFavorite: payload.isFavorite ?? false,
+        isDeleted: payload.isDeleted ?? false,
+        deletedAt: payload.deletedAt ?? null,
+        tags: payload.tags ?? [],
+      };
+
       if (payload.id) {
-        saved = await notesApi.update(token, payload.id, {
-          title: payload.title,
-          content: payload.content,
-        });
+        saved = await notesApi.update(token, payload.id, body);
       } else {
-        saved = await notesApi.create(token, {
-          title: payload.title,
-          content: payload.content,
-        });
+        saved = await notesApi.create(token, body);
       }
       const adapted = {
         id: saved._id,
@@ -132,10 +137,11 @@ const Dashboard = () => {
         content: saved.content,
         snippet: (saved.content || "").slice(0, 120),
         updatedAt: saved.updatedAt || saved.createdAt,
-        isPinned: payload.isPinned ?? false,
-        isFavorite: payload.isFavorite ?? false,
-        isDeleted: false,
-        tags: payload.tags ?? [],
+        isPinned: !!(saved.isPinned ?? payload.isPinned),
+        isFavorite: !!(saved.isFavorite ?? payload.isFavorite),
+        isDeleted: !!(saved.isDeleted ?? payload.isDeleted),
+        deletedAt: saved.deletedAt ?? payload.deletedAt ?? null,
+        tags: Array.isArray(saved.tags) ? saved.tags : payload.tags ?? [],
       };
       setNotes((prev) => {
         const idx = prev.findIndex((n) => n.id === adapted.id);
@@ -155,6 +161,52 @@ const Dashboard = () => {
   const handleDeleteNote = async (note) => {
     if (!token) return;
     try {
+      const updated = await notesApi.update(token, note.id, {
+        isDeleted: true,
+        deletedAt: new Date().toISOString(),
+      });
+      setNotes((prev) =>
+        prev.map((n) =>
+          n.id === note.id
+            ? {
+                ...n,
+                isDeleted: true,
+                deletedAt: updated.deletedAt || new Date().toISOString(),
+              }
+            : n
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleRestoreNote = async (note) => {
+    if (!token) return;
+    try {
+      await notesApi.update(token, note.id, {
+        isDeleted: false,
+        deletedAt: null,
+      });
+      setNotes((prev) =>
+        prev.map((n) =>
+          n.id === note.id
+            ? {
+                ...n,
+                isDeleted: false,
+                deletedAt: null,
+              }
+            : n
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeletePermanently = async (note) => {
+    if (!token) return;
+    try {
       await notesApi.remove(token, note.id);
       setNotes((prev) => prev.filter((n) => n.id !== note.id));
     } catch (err) {
@@ -162,14 +214,26 @@ const Dashboard = () => {
     }
   };
 
-  const handleRestoreNote = () => {};
-
-  const handleDeletePermanently = () => {};
-
-  const handleToggleFavorite = (note) => {
-    setNotes((prev) =>
-      prev.map((n) => (n.id === note.id ? { ...n, isFavorite: !n.isFavorite } : n))
-    );
+  const handleToggleFavorite = async (note) => {
+    if (!token) return;
+    const nextFavorite = !note.isFavorite;
+    try {
+      await notesApi.update(token, note.id, {
+        isFavorite: nextFavorite,
+      });
+      setNotes((prev) =>
+        prev.map((n) =>
+          n.id === note.id
+            ? {
+                ...n,
+                isFavorite: nextFavorite,
+              }
+            : n
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const activeNotesCount = notes.filter((n) => !n.isDeleted).length;

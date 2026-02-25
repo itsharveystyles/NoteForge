@@ -7,7 +7,15 @@ import { useTheme } from "../../utils/ThemeContext";
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, user, logout, getInitials: getAuthInitials } = useAuth();
+  const {
+    isAuthenticated,
+    user,
+    logout,
+    getInitials: getAuthInitials,
+    accounts = [],
+    activeAccountId,
+    switchAccount,
+  } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -74,9 +82,52 @@ const Navbar = () => {
             </button>
             {dropdownOpen && (
               <div
-                className="absolute right-0 top-full mt-2 w-48 py-1 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] shadow-lg z-50"
+                className="absolute right-0 top-full mt-2 w-56 py-1 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] shadow-lg z-50"
                 role="menu"
               >
+                {Array.isArray(accounts) && accounts.length > 0 && (
+                  <div className="pb-1 mb-1 border-b border-[var(--border-subtle)]">
+                    {accounts.map((acct) => {
+                      const acctUser = acct.user;
+                      const label =
+                        acctUser?.name?.trim() ||
+                        (acctUser?.email && acctUser.email.split("@")[0]) ||
+                        "Account";
+                      const email = acctUser?.email || "";
+                      const initialsForAcct = getAuthInitials(acctUser);
+                      const isActive = acct.id === activeAccountId;
+                      return (
+                        <button
+                          key={acct.id}
+                          type="button"
+                          onClick={() => {
+                            switchAccount?.(acct.id);
+                            setDropdownOpen(false);
+                            navigate("/dashboard");
+                          }}
+                          className={`flex items-center gap-2 w-full px-4 py-2.5 text-sm text-left transition-colors ${
+                            isActive
+                              ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
+                              : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
+                          }`}
+                          role="menuitem"
+                        >
+                          <span className="w-7 h-7 rounded-full bg-[var(--accent)] text-white text-xs font-semibold flex items-center justify-center">
+                            {initialsForAcct}
+                          </span>
+                          <span className="flex flex-col">
+                            <span className="leading-tight">{label}</span>
+                            {email && (
+                              <span className="text-[11px] text-[var(--text-muted)] leading-tight">
+                                {email}
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 <Link
                   to="/signup"
                   onClick={() => setDropdownOpen(false)}
