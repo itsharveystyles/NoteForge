@@ -2,18 +2,30 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
 import { useAuth } from "../../utils/AuthContext";
+import { authApi } from "../../utils/api";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login({ name, email });
-    navigate("/");
+    setError("");
+    setLoading(true);
+    try {
+      const data = await authApi.signup({ name, email, password });
+      login({ user: data.user, token: data.token });
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Unable to sign up");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,9 +40,14 @@ const SignUp = () => {
           <HiOutlineArrowLeft className="w-5 h-5" />
           Back
         </button>
-        <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-6 text-center">
+        <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-2 text-center">
           Create your NoteForge account
         </h2>
+        {error && (
+          <p className="text-sm text-red-400 text-center mb-4">
+            {error}
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm text-[var(--text-secondary)] mb-2">Name</label>
@@ -67,9 +84,10 @@ const SignUp = () => {
           </div>
           <button
             type="submit"
-            className="btn-glow w-full py-2.5 rounded-lg bg-[var(--accent)] text-white font-medium hover:bg-[var(--accent-hover)] transition"
+            disabled={loading}
+            className="btn-glow w-full py-2.5 rounded-lg bg-[var(--accent)] text-white font-medium hover:bg-[var(--accent-hover)] transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {loading ? "Creating account..." : "Sign Up"}
           </button>
           <p className="text-center text-sm text-[var(--text-secondary)] mt-5">
             Already have an account?{" "}

@@ -46,12 +46,10 @@ const NoteEditorModal = ({ open, onClose, note, onSave }) => {
   };
 
   const handleSave = () => {
-    const snippet = content.trim().slice(0, 120) || "";
     const payload = {
-      id: note?.id || `note-${Date.now()}`,
+      id: note?.id,
       title: title.trim() || "Untitled Note",
       content: content.trim(),
-      snippet,
       updatedAt: new Date().toISOString(),
       isPinned: !!isPinned,
       isFavorite: note?.isFavorite ?? false,

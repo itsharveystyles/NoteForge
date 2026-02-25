@@ -1,9 +1,9 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
-// Create the context for authentication
 const AuthContext = createContext();
 
-// Get 2-letter initials from name ("John Doe" -> "JD") or email ("john@x.com" -> "JO")
+const STORAGE_KEY = "noteforge-auth";
+
 export const getInitials = (user) => {
   if (!user) return "?";
   if (user.name && user.name.trim()) {
@@ -18,29 +18,61 @@ export const getInitials = (user) => {
   return "?";
 };
 
-// AuthProvider component to wrap around your app
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
-  // Login function – pass { name, email } from signup or { email } from login
-  const login = (userData) => {
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && parsed.token) {
+        setToken(parsed.token);
+        setUser(parsed.user || null);
+        setIsAuthenticated(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (!token) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          token,
+          user,
+        })
+      );
+    } catch {
+      // ignore
+    }
+  }, [token, user]);
+
+  const login = ({ user: userData, token: authToken }) => {
     setIsAuthenticated(true);
     setUser(userData && typeof userData === "object" ? userData : null);
+    setToken(authToken || null);
   };
 
-  // Logout function
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, getInitials }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, token, login, logout, getInitials }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook to use the AuthContext
 export const useAuth = () => useContext(AuthContext);

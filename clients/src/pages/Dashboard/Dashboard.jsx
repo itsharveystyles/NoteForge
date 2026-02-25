@@ -10,27 +10,8 @@ import CreateNoteButton from "../../components/CreateNoteButton/CreateNoteButton
 import NoteEditorModal from "../../components/NoteEditorModal/NoteEditorModal";
 import { HiOutlineDocumentText, HiOutlineClock, HiOutlineStar, HiOutlineTrash, HiOutlineSun, HiOutlineMoon, HiOutlineUser } from "react-icons/hi2";
 import { normalizeTag } from "../../utils/tagColors";
+import { notesApi } from "../../utils/api";
 import { useTheme } from "../../utils/ThemeContext";
-
-const STORAGE_KEY = "noteforge-notes";
-
-const loadNotes = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const data = JSON.parse(raw);
-    if (!Array.isArray(data)) return [];
-    return data.filter((n) => n != null && typeof n === "object");
-  } catch {
-    return [];
-  }
-};
-
-const saveNotes = (notes) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  } catch (_) {}
-};
 
 const matchSearch = (note, q) => {
   if (!q) return true;
@@ -55,16 +36,53 @@ const sortNotes = (list) =>
 
 const Dashboard = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { theme, setTheme } = useTheme();
-  const [notes, setNotes] = useState(loadNotes);
+  const [notes, setNotes] = useState([]);
+  const [loadingNotes, setLoadingNotes] = useState(true);
+  const [notesError, setNotesError] = useState("");
   const [search, setSearch] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
 
   useEffect(() => {
-    saveNotes(notes);
-  }, [notes]);
+    let isMounted = true;
+    const fetchNotes = async () => {
+      if (!token) {
+        setNotes([]);
+        setLoadingNotes(false);
+        return;
+      }
+      setLoadingNotes(true);
+      setNotesError("");
+      try {
+        const data = await notesApi.list(token);
+        const mapped = Array.isArray(data)
+          ? data.map((n) => ({
+              id: n._id,
+              title: n.title,
+              content: n.content,
+              snippet: (n.content || "").slice(0, 120),
+              updatedAt: n.updatedAt || n.createdAt,
+              isPinned: false,
+              isFavorite: false,
+              isDeleted: false,
+              tags: [],
+            }))
+          : [];
+        if (isMounted) setNotes(mapped);
+      } catch (err) {
+        if (isMounted) setNotesError(err.message || "Failed to load notes");
+      } finally {
+        if (isMounted) setLoadingNotes(false);
+      }
+    };
+
+    fetchNotes();
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   const pathname = location.pathname || "";
   const isTrash = pathname.endsWith("/trash");
@@ -93,35 +111,60 @@ const Dashboard = () => {
     setEditorOpen(true);
   };
 
-  const handleSaveNote = (payload) => {
-    setNotes((prev) => {
-      const idx = prev.findIndex((n) => n.id === payload.id);
-      const next = idx >= 0 ? [...prev] : [payload, ...prev];
-      if (idx >= 0) next[idx] = payload;
-      else next[0] = payload;
-      return next;
-    });
-    setEditorOpen(false);
-    setEditingNote(null);
+  const handleSaveNote = async (payload) => {
+    if (!token) return;
+    try {
+      let saved;
+      if (payload.id) {
+        saved = await notesApi.update(token, payload.id, {
+          title: payload.title,
+          content: payload.content,
+        });
+      } else {
+        saved = await notesApi.create(token, {
+          title: payload.title,
+          content: payload.content,
+        });
+      }
+      const adapted = {
+        id: saved._id,
+        title: saved.title,
+        content: saved.content,
+        snippet: (saved.content || "").slice(0, 120),
+        updatedAt: saved.updatedAt || saved.createdAt,
+        isPinned: payload.isPinned ?? false,
+        isFavorite: payload.isFavorite ?? false,
+        isDeleted: false,
+        tags: payload.tags ?? [],
+      };
+      setNotes((prev) => {
+        const idx = prev.findIndex((n) => n.id === adapted.id);
+        const next = idx >= 0 ? [...prev] : [adapted, ...prev];
+        if (idx >= 0) next[idx] = adapted;
+        else next[0] = adapted;
+        return next;
+      });
+      setEditorOpen(false);
+      setEditingNote(null);
+    } catch (err) {
+      // basic surface – could add toast
+      console.error(err);
+    }
   };
 
-  const handleDeleteNote = (note) => {
-    setNotes((prev) =>
-      prev.map((n) =>
-        n.id === note.id ? { ...n, isDeleted: true, deletedAt: new Date().toISOString() } : n
-      )
-    );
+  const handleDeleteNote = async (note) => {
+    if (!token) return;
+    try {
+      await notesApi.remove(token, note.id);
+      setNotes((prev) => prev.filter((n) => n.id !== note.id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleRestoreNote = (note) => {
-    setNotes((prev) =>
-      prev.map((n) => (n.id === note.id ? { ...n, isDeleted: false, deletedAt: undefined } : n))
-    );
-  };
+  const handleRestoreNote = () => {};
 
-  const handleDeletePermanently = (note) => {
-    setNotes((prev) => prev.filter((n) => n.id !== note.id));
-  };
+  const handleDeletePermanently = () => {};
 
   const handleToggleFavorite = (note) => {
     setNotes((prev) =>
